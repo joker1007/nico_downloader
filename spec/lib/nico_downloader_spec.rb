@@ -54,6 +54,15 @@ describe NicoDownloader do
     end
   end
 
+  describe "thumbnail_path" do
+    let(:nico_downloader) { NicoDownloader.new }
+    let(:filepath) { "/tmp/nicomovie/sm6038462.mp4" }
+
+    subject { nico_downloader.thumbnail_path(filepath) }
+
+    it { should eq "/tmp/nicomovie/sm6038462.jpg"  }
+  end
+
   describe "#download" do
     let(:nico_name) { "sm6038462" }
     let(:download_dir) { "/tmp/nicomovie" }
@@ -71,8 +80,10 @@ describe NicoDownloader do
 
     it "should download movie file" do
       subject
-      File.exists?("#{download_dir}/#{nico_name}/#{nico_name}.mp4").should be_true
-      File.size("#{download_dir}/#{nico_name}/#{nico_name}.mp4").should > 100000
+      download_path = "#{download_dir}/#{nico_name}/#{nico_name}.mp4"
+      File.exists?(download_path).should be_true
+      File.exists?(nico_downloader.thumbnail_path(download_path)).should be_true
+      File.size(download_path).should > 100000
     end
 
     it "call download_complete_callback" do

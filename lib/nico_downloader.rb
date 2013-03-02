@@ -13,6 +13,7 @@ class NicoDownloader
 
   VIDEO_TYPE_TABLE = {"v" => "flv", "m" => "mp4", "s" => "swf"}
   SLEEP_TIME_PER_DOWNLOAD = 3
+  THUMBNAIL_SIZE = "160x120".freeze
 
   def initialize(logger = :stdout)
     agent_init
@@ -122,7 +123,7 @@ class NicoDownloader
       agent.pluggable_parser.default = Mechanize::Download
       agent.get(url).save(path)
 
-      # create_thumbnail(path)
+      create_thumbnail(path)
 
       logger.info "download completed: #{nico_name}"
     rescue Exception => e
@@ -184,6 +185,23 @@ class NicoDownloader
         @error_count = 0
         puts "Sleep #{SLEEP_TIME_PER_DOWNLOAD} seconds"
         sleep SLEEP_TIME_PER_DOWNLOAD
+      end
+    end
+  end
+
+  def thumbnail_path(path)
+    path.gsub(/#{Regexp.escape(File.extname(path))}$/, ".jpg")
+  end
+
+  def exist_thumbnail?(path)
+    File.exist?(path.gsub(/#{Regexp.escape(File.extname(path))}$/, ".jpg"))
+  end
+
+  def create_thumbnail(filepath)
+    unless exist_thumbnail?(filepath)
+      ffmpegthumbnailer = `which ffmpegthumbnailer`.chomp
+      unless ffmpegthumbnailer == ""
+        system("#{ffmpegthumbnailer} -t 10% -s #{THUMBNAIL_SIZE} -i #{filepath} -o #{thumbnail_path(filepath)}")
       end
     end
   end

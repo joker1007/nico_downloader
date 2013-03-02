@@ -2,6 +2,9 @@
 
 TODO: Write a gem description
 
+## Requirements
+- ffmpegthumbnailer
+
 ## Installation
 
 Add this line to your application's Gemfile:
