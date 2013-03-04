@@ -64,21 +64,13 @@ describe NicoDownloader do
   end
 
   describe "#download" do
-    let(:nico_vid) { "sm6038462" }
+    let(:vid) { "sm6038462" }
     let(:download_dir) { "/tmp/nicomovie" }
+    let(:download_path) { "#{download_dir}/#{vid}/#{vid}.mp4" }
+    let(:thumbnail_path) { "#{download_dir}/#{vid}/#{vid}.jpg" }
     let(:nico_downloader) { NicoDownloader.new }
-    let(:result_info) do
-      NicoDownloader::Info.new(
-        title: "【ニコカラ】 石鹸屋 - ヒルクライム On Vocal",
-        nico_vid: "sm6038462",
-        description: "パソカラアップ第4弾。コメントでリクエストくれた人が居たんですが、前回のから上げるのに半月以上かかってしまった。ちなみに字幕の動きは、自作のスクリプトを書いて、いくつかエフェクトのプリセットを作ったりしています。第5弾もあわせてアップしました。(sm6039719)その他のパソカラリスト(mylist/9085213)",
-        view_count: 11036,
-        mylist_count: 290,
-        tags: %w(音楽 石鹸屋 ニコカラ ニコニコカラオケDB ハイブリッドバディ ヒルクライム ニコカラ石鹸屋 JOYSOUND配信中 厚志 石鹸屋オリジナル)
-      )
-    end
 
-    subject { nico_downloader.download(nico_vid, download_dir) }
+    subject { nico_downloader.download(vid, download_dir) }
 
     before do
       FileUtils.rm_r(download_dir) if File.exists?(download_dir)
@@ -90,15 +82,14 @@ describe NicoDownloader do
 
     it "should download movie file" do
       subject
-      download_path = "#{download_dir}/#{nico_vid}/#{nico_vid}.mp4"
       File.exists?(download_path).should be_true
-      File.exists?(nico_downloader.thumbnail_path(download_path)).should be_true
+      File.exists?(thumbnail_path).should be_true
       File.size(download_path).should > 100000
     end
 
     it "call on_download_complete" do
       receiver = double(:receiver)
-      receiver.should_receive(:test_method).with(result_info)
+      receiver.should_receive(:test_method).with(an_instance_of(NicoDownloader::Info))
       callback = ->(info) { receiver.test_method(info)}
       nico_downloader.on_download_complete = callback
       subject
