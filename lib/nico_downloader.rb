@@ -1,4 +1,5 @@
 require "nico_downloader/version"
+require "nico_downloader/info"
 
 require "mechanize"
 require "lumberjack"
@@ -108,12 +109,13 @@ class NicoDownloader
 
     sleep 1
 
-    download_info(nico_name, dest_dir)
+    info_path = download_info(nico_name, dest_dir)
 
     logger.info "Download sequence completed: #{nico_name}"
     self.error_count = 0
 
-    download_complete_callback.call(dest_path) if download_complete_callback && download_complete_callback.is_a?(Proc)
+    nico_downloader_info = NicoDownloader::Info.parse(File.read(info_path))
+    download_complete_callback.call(nico_downloader_info) if download_complete_callback && download_complete_callback.is_a?(Proc)
   end
 
   def do_download(nico_name, url, path)
@@ -126,6 +128,7 @@ class NicoDownloader
       create_thumbnail(path)
 
       logger.info "download completed: #{nico_name}"
+      path
     rescue Exception => e
       logger.fatal "download failed: #{nico_name} #{$!}"
       logger.fatal "#{$@}"
@@ -144,6 +147,7 @@ class NicoDownloader
       agent.download "http://www.nicovideo.jp/api/getthumbinfo/#{nico_name}", info_path
 
       logger.info "Movie info download completed: #{nico_name}"
+      info_path
     rescue Exception => e
       logger.fatal "info download failed: #{nico_name} #{$!}"
       logger.fatal "#{$@}"

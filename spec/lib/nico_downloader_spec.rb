@@ -67,6 +67,16 @@ describe NicoDownloader do
     let(:nico_name) { "sm6038462" }
     let(:download_dir) { "/tmp/nicomovie" }
     let(:nico_downloader) { NicoDownloader.new }
+    let(:result_info) do
+      NicoDownloader::Info.new(
+        title: "【ニコカラ】 石鹸屋 - ヒルクライム On Vocal",
+        nico_name: "sm6038462",
+        description: "パソカラアップ第4弾。コメントでリクエストくれた人が居たんですが、前回のから上げるのに半月以上かかってしまった。ちなみに字幕の動きは、自作のスクリプトを書いて、いくつかエフェクトのプリセットを作ったりしています。第5弾もあわせてアップしました。(sm6039719)その他のパソカラリスト(mylist/9085213)",
+        view_count: 11036,
+        mylist_count: 290,
+        tags: %w(音楽 石鹸屋 ニコカラ ニコニコカラオケDB ハイブリッドバディ ヒルクライム ニコカラ石鹸屋 JOYSOUND配信中 厚志 石鹸屋オリジナル)
+      )
+    end
 
     subject { nico_downloader.download(nico_name, download_dir) }
 
@@ -88,9 +98,8 @@ describe NicoDownloader do
 
     it "call download_complete_callback" do
       receiver = double(:receiver)
-      dest_path = "#{download_dir}/#{nico_name}/#{nico_name}.mp4"
-      receiver.should_receive(:test_method).with(dest_path)
-      callback = ->(path) { receiver.test_method(path)}
+      receiver.should_receive(:test_method).with(result_info)
+      callback = ->(info) { receiver.test_method(info)}
       nico_downloader.download_complete_callback = callback
       subject
     end

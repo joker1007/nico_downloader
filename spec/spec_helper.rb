@@ -15,3 +15,5 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = 'random'
 end
+
+SPEC_ROOT = File.dirname(__FILE__)
