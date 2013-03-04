@@ -121,7 +121,7 @@ class NicoDownloader
     nico_downloader_info = NicoDownloader::Info.parse(File.read(info_path(vid, dest_dir)))
     nico_downloader_info.path = dest_path
     nico_downloader_info.thumbnail_path = thumbnail_path(dest_path)
-    on_download_complete.call(nico_downloader_info.tapp) if on_download_complete && on_download_complete.is_a?(Proc)
+    on_download_complete.call(nico_downloader_info) if on_download_complete && on_download_complete.is_a?(Proc)
   end
 
   def do_download(vid, url, path)
