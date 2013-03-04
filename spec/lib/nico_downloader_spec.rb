@@ -87,6 +87,14 @@ describe NicoDownloader do
       File.size(download_path).should > 100000
     end
 
+    it "should not re-download" do
+      nico_downloader.download(vid, download_dir)
+      File.exists?(download_path).should be_true
+      File.exists?(thumbnail_path).should be_true
+      nico_downloader.should_not_receive(:do_download)
+      nico_downloader.download(vid, download_dir)
+    end
+
     it "call on_download_complete" do
       receiver = double(:receiver)
       receiver.should_receive(:test_method).with(an_instance_of(NicoDownloader::Info))
