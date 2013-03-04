@@ -9,7 +9,7 @@ require "fileutils"
 require "tapp"
 
 class NicoDownloader
-  attr_accessor :agent, :error_count, :rss_error_count, :download_complete_callback
+  attr_accessor :agent, :error_count, :rss_error_count, :on_download_complete
   attr_reader :mail, :pass, :logger
 
   VIDEO_TYPE_TABLE = {"v" => "flv", "m" => "mp4", "s" => "swf"}
@@ -115,7 +115,7 @@ class NicoDownloader
     self.error_count = 0
 
     nico_downloader_info = NicoDownloader::Info.parse(File.read(info_path))
-    download_complete_callback.call(nico_downloader_info) if download_complete_callback && download_complete_callback.is_a?(Proc)
+    on_download_complete.call(nico_downloader_info) if on_download_complete && on_download_complete.is_a?(Proc)
   end
 
   def do_download(nico_vid, url, path)

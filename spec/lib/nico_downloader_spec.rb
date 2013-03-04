@@ -96,11 +96,11 @@ describe NicoDownloader do
       File.size(download_path).should > 100000
     end
 
-    it "call download_complete_callback" do
+    it "call on_download_complete" do
       receiver = double(:receiver)
       receiver.should_receive(:test_method).with(result_info)
       callback = ->(info) { receiver.test_method(info)}
-      nico_downloader.download_complete_callback = callback
+      nico_downloader.on_download_complete = callback
       subject
     end
   end
