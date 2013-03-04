@@ -91,7 +91,7 @@ class NicoDownloader
     end
   end
 
-  def download(vid, dir = "/tmp/nicomovie")
+  def download(vid, dir = "/tmp/nicomovie", force_download: false, update_info: false)
     login
     logger.info "Download sequence start: #{vid}"
     url = get_flv_url(vid)
@@ -105,16 +105,20 @@ class NicoDownloader
     dest_dir = FileUtils.mkdir_p(File.join(dir, vid))
     dest_path = File.join(dest_dir, "#{vid}.#{video_type}")
 
-    do_download(vid, url, dest_path)
+    if force_download || !(File.exists?(dest_path))
+      do_download(vid, url, dest_path)
+    end
 
     sleep 1
 
-    info_path = download_info(vid, dest_dir)
+    if update_info || !(exist_info_file?(vid, dest_dir))
+      download_info(vid, dest_dir)
+    end
 
     logger.info "Download sequence completed: #{vid}"
     self.error_count = 0
 
-    nico_downloader_info = NicoDownloader::Info.parse(File.read(info_path))
+    nico_downloader_info = NicoDownloader::Info.parse(File.read(info_path(vid, dest_dir)))
     nico_downloader_info.path = dest_path
     nico_downloader_info.thumbnail_path = thumbnail_path(dest_path)
     on_download_complete.call(nico_downloader_info) if on_download_complete && on_download_complete.is_a?(Proc)
@@ -140,16 +144,16 @@ class NicoDownloader
   end
 
   def download_info(vid, dir)
-    info_path = File.join(dir, "#{vid}_info.xml")
-    FileUtils.mkdir_p(File.dirname(info_path))
+    path = info_path(vid, dir)
+    FileUtils.mkdir_p(File.dirname(path))
 
     begin
       logger.info "Movie info download start: #{vid}"
 
-      agent.download "http://www.nicovideo.jp/api/getthumbinfo/#{vid}", info_path
+      agent.download "http://www.nicovideo.jp/api/getthumbinfo/#{vid}", path
 
       logger.info "Movie info download completed: #{vid}"
-      info_path
+      path
     rescue Exception => e
       logger.fatal "info download failed: #{vid} #{$!}"
       logger.fatal "#{$@}"
@@ -195,12 +199,20 @@ class NicoDownloader
     end
   end
 
+  def info_path(vid, dir)
+    File.join(dir, "#{vid}_info.xml")
+  end
+
+  def exist_info_file?(vid, dir)
+    File.exist?(info_path(vid, dir))
+  end
+
   def thumbnail_path(path)
     path.gsub(/#{Regexp.escape(File.extname(path))}$/, ".jpg")
   end
 
   def exist_thumbnail?(path)
-    File.exist?(path.gsub(/#{Regexp.escape(File.extname(path))}$/, ".jpg"))
+    File.exist?(thumbnail_path(path))
   end
 
   def create_thumbnail(filepath)
