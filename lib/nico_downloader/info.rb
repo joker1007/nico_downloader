@@ -31,14 +31,14 @@ class NicoDownloader::Info
     def from_directory(directory_path, info_path: nil, movie_path: nil, thumbnail_path: nil)
       dir = Dir.open(directory_path)
 
-      unless info_path
-        info_filename = dir.entries.find {|name| name =~ /_info\.xml$/i}
-        info_path = info_filename ? File.join(directory_path, info_filename) : raise("Info file is nothing")
-      end
-
       unless movie_path
         movie_filename = dir.entries.find {|name| name =~ /\.(mp4|flv|avi|mpg|mkv|wmv|divx|m4v)$/i}
         movie_path = movie_filename ? File.join(directory_path, movie_filename) : raise("Movie file is nothing")
+      end
+
+      unless info_path
+        info_filename = dir.entries.find {|name| name =~ /_info\.xml$/i}
+        info_path = info_filename ? File.join(directory_path, info_filename) : raise("Info file is nothing")
       end
 
       unless thumbnail_path
@@ -92,5 +92,19 @@ class NicoDownloader::Info
     duration == other.duration &&
     posted_at == other.posted_at &&
     tags == other.tags
+  end
+
+  def parse(xml)
+    other_info = self.class.parse(xml)
+
+    self.title = other_info.title
+    self.vid = other_info.vid
+    self.description = other_info.description
+    self.view_count = other_info.view_count
+    self.mylist_count = other_info.mylist_count
+    self.duration = other_info.duration
+    self.posted_at = other_info.posted_at
+    self.tags = other_info.tags
+    self
   end
 end
