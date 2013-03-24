@@ -3,10 +3,13 @@ require "time"
 class NicoDownloader::Info
   attr_accessor :title, :vid, :description, :view_count, :mylist_count, :duration, :posted_at, :tags, :path, :thumbnail_path
 
+  class InvalidInfoFile < StandardError; end
+
   class << self
     def parse(xml)
       doc = Nokogiri::XML::Document.parse(xml)
 
+      raise InvalidInfoFile, "No Title" unless doc.at_xpath("//title")
       title = doc.at_xpath("//title").text
       vid = doc.at_xpath("//video_id").text
       description = doc.at_xpath("//description").text
