@@ -57,5 +57,17 @@ describe NicoDownloader::Info do
     its(:tags) { should eq tags }
     its(:path) { "/tmp/movie.mp4" }
     its(:thumbnail_path) { "/tmp/movie.jpg" }
+
+    context "No Title" do
+      let(:doc_stub) { stub(:doc) }
+      before do
+        Nokogiri::XML::Document.should_receive(:parse).and_return(doc_stub)
+        doc_stub.should_receive(:at_xpath).with("//title").and_return(nil)
+      end
+
+      it "should raise InvalidInfoFile" do
+        expect{subject}.to raise_error(NicoDownloader::Info::InvalidInfoFile)
+      end
+    end
   end
 end

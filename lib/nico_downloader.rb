@@ -6,7 +6,6 @@ require "lumberjack"
 require "pit"
 require "rss"
 require "fileutils"
-require "tapp"
 
 class NicoDownloader
   attr_accessor :agent, :error_count, :rss_error_count, :on_download_complete
