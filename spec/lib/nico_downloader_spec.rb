@@ -2,6 +2,7 @@ require "spec_helper"
 
 require "nico_downloader"
 require "tapp"
+require "byebug"
 
 describe NicoDownloader do
   describe "#login" do

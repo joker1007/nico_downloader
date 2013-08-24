@@ -39,10 +39,20 @@ class NicoDownloader
 
   def login
     if mail && pass
-      true if authenticated?
+      if authenticated?
+        logger.info "Already logged in"
+        return true
+      end
+
       agent.ssl_version = "TLSv1"
       agent.post 'https://secure.nicovideo.jp/secure/login?site=niconico','mail' => mail,'password' => pass
-      authenticated?
+      if result = authenticated?
+        logger.info "Login successful"
+      else
+        logger.fatal "Login failed"
+      end
+
+      result
     else
       raise "Login Error"
     end
