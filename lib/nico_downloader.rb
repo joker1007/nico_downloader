@@ -44,7 +44,6 @@ class NicoDownloader
         return true
       end
 
-      agent.ssl_version = "TLSv1"
       agent.post 'https://secure.nicovideo.jp/secure/login?site=niconico','mail' => mail,'password' => pass
       if result = authenticated?
         logger.info "Login successful"
